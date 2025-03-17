@@ -7,6 +7,7 @@ namespace DataAccess
     using OfficeOpenXml;
     using Common;
     using System.Globalization;
+    using System.Text;
 
     struct Employee
     {
@@ -80,7 +81,7 @@ namespace DataAccess
             using var package = new ExcelPackage(new FileInfo(filePath));
             var worksheet = package.Workbook.Worksheets[0];
             int rowCount = worksheet.Dimension.Rows;
-            string listDongLoi = "";
+            StringBuilder listDongLoi =  new StringBuilder();
             for (int row = 2; row <= rowCount; row++)
             {
                 try
@@ -96,7 +97,7 @@ namespace DataAccess
                     {
                         if (!DateTime.TryParseExact(worksheet.Cells[row, 3].Text, "dd/MM/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out joinDate))
                         {
-                            listDongLoi += ("Định dạng thời gian sai tại dòng " + row) + ",";
+                            listDongLoi.Append("Định dạng thời gian sai tại dòng " + row);
                             continue;
                         }
                     }
@@ -108,7 +109,7 @@ namespace DataAccess
                     {
                         if (!double.TryParse(worksheet.Cells[row, 5].Text, out salaryFactor))
                         {
-                            listDongLoi +=($"Vui lòng nhập hệ số lương hợp lệ tại dòng {row}")+",";
+                            listDongLoi.Append($"Vui lòng nhập hệ số lương hợp lệ tại dòng {row}");
                             continue;
                         }
                     }
