@@ -66,17 +66,40 @@ namespace DataAccess
             using var package = new ExcelPackage(new FileInfo(filePath));
             var worksheet = package.Workbook.Worksheets[0];
             int rowCount = worksheet.Dimension.Rows;
-
+            string listDongLoi = "";
             for (int row = 2; row <= rowCount; row++)
             {
                 try
                 {
+                    if(worksheet.Cells[row, 1].Text == "" || worksheet.Cells[row, 2].Text =="")
+                    {
+                        continue;
+                    }
                     string employeeID = worksheet.Cells[row, 1].Text;
                     string name = worksheet.Cells[row, 2].Text;
-                    DateTime joinDate = DateTime.Parse(worksheet.Cells[row, 3].Text);
-                    string position = worksheet.Cells[row, 4].Text;
-                    double salaryFactor = double.Parse(worksheet.Cells[row, 5].Text);
-
+                    if (worksheet.Cells[row, 3].Text != "")
+                    {
+                        DateTime result;
+                        if (DateTime.TryParseExact(worksheet.Cells[row, 3].Text + "", "dd/MM/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
+                            DateTime joinDate = result;
+                        else
+                            listDongLoi += ("Định dạng thời gian sai tại dòng " + row) + ",";
+                        continue;
+                    }
+                    if (worksheet.Cells[row, 4].Text != "") 
+                        string position = worksheet.Cells[row, 4].Text;
+                    if (worksheet.Cells[row, 5].Text + "" != "")
+                    {
+                        int so;
+                        bool check = int.TryParse(worksheet.Cells[row, 5].Text + "", out so);
+                        if (check)
+                            double salaryFactor = so;
+                        else
+                        {
+                            listDongLoi += ("Vui lòng nhập hệ số lương tại dòng " + row) + ",";
+                            continue;
+                        }
+                    }
                     employees.Add(new Employee(employeeID, name, joinDate, salaryFactor, position));
                 }
                 catch (Exception ex)
@@ -84,6 +107,7 @@ namespace DataAccess
                     Console.WriteLine($"Lỗi tại dòng {row}: {ex.Message}");
                 }
             }
+            Console.WriteLine($"{listDongLoi}");
         }
 
         public static void ShowListEmployees()
