@@ -38,12 +38,23 @@ namespace DataAccess
                 Console.WriteLine("Số lượng không hợp lệ!");
                 return;
             }
-
+            
             for (int i = 0; i < count; i++)
             {
                 Console.WriteLine($"\nNhập thông tin cho nhân viên {i + 1}:");
 
-                string employeeID = Common.GetValidInput("Mã nhân viên");
+                string employeeID;
+                do
+                {
+                    employeeID = Common.GetValidInput("Mã nhân viên");
+
+                    if (employees.Any(s => s.EmployeeID == employeeID))
+                    {
+                        Console.WriteLine($"Mã nhân viên {employeeID} đã tồn tại, vui lòng nhập mã khác!");
+                    }
+
+                } while (employees.Any(s => s.EmployeeID == employeeID));
+
                 string name = Common.GetValidInput("Tên nhân viên");
                 DateTime joinDate = Common.GetValidDate("Ngày vào công ty (dd/MM/yyyy)");
                 string position = Common.GetValidInput("Vị trí công việc");
