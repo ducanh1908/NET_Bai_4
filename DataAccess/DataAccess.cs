@@ -6,6 +6,8 @@ namespace DataAccess
     using System.IO;
     using OfficeOpenXml;
     using Common;
+    using System.Globalization;
+
     struct Employee
     {
         public string EmployeeID { get; }
@@ -53,6 +55,7 @@ namespace DataAccess
 
         public static void ImportEmployeesFromExcel()
         {
+            //C:\Users\123\Desktop\dsNhanVien.xlsx
             Console.Write("Nhập đường dẫn file Excel: ");
             string filePath = Console.ReadLine();
 
@@ -71,32 +74,30 @@ namespace DataAccess
             {
                 try
                 {
-                    if(worksheet.Cells[row, 1].Text == "" || worksheet.Cells[row, 2].Text =="")
+                    if (string.IsNullOrEmpty(worksheet.Cells[row, 1].Text) || string.IsNullOrEmpty(worksheet.Cells[row, 2].Text))
                     {
                         continue;
                     }
                     string employeeID = worksheet.Cells[row, 1].Text;
                     string name = worksheet.Cells[row, 2].Text;
-                    if (worksheet.Cells[row, 3].Text != "")
+                    DateTime joinDate = DateTime.MinValue;
+                    if (!string.IsNullOrEmpty(worksheet.Cells[row, 3].Text))
                     {
-                        DateTime result;
-                        if (DateTime.TryParseExact(worksheet.Cells[row, 3].Text + "", "dd/MM/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out result))
-                            DateTime joinDate = result;
-                        else
-                            listDongLoi += ("Định dạng thời gian sai tại dòng " + row) + ",";
-                        continue;
-                    }
-                    if (worksheet.Cells[row, 4].Text != "") 
-                        string position = worksheet.Cells[row, 4].Text;
-                    if (worksheet.Cells[row, 5].Text + "" != "")
-                    {
-                        int so;
-                        bool check = int.TryParse(worksheet.Cells[row, 5].Text + "", out so);
-                        if (check)
-                            double salaryFactor = so;
-                        else
+                        if (!DateTime.TryParseExact(worksheet.Cells[row, 3].Text, "dd/MM/yyyy", CultureInfo.CurrentCulture, DateTimeStyles.None, out joinDate))
                         {
-                            listDongLoi += ("Vui lòng nhập hệ số lương tại dòng " + row) + ",";
+                            listDongLoi += ("Định dạng thời gian sai tại dòng " + row) + ",";
+                            continue;
+                        }
+                    }
+                    string position = "";
+                    if (worksheet.Cells[row, 4].Text != "") 
+                         position = worksheet.Cells[row, 4].Text;
+                    double salaryFactor = 0;
+                    if (!string.IsNullOrEmpty(worksheet.Cells[row, 5].Text))
+                    {
+                        if (!double.TryParse(worksheet.Cells[row, 5].Text, out salaryFactor))
+                        {
+                            listDongLoi +=($"Vui lòng nhập hệ số lương hợp lệ tại dòng {row}")+",";
                             continue;
                         }
                     }
